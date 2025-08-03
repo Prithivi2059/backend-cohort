@@ -6,12 +6,33 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-async function main() {
+async function createImagetoCaption(base64ImageData) {
+  const contents = [
+    {
+      inlineData: {
+        mimeType: "image/jpeg",
+        data: base64ImageData,
+      },
+    },
+    {
+      text: "Caption this image",
+    },
+  ];
+
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
-    contents: "Explain how AI works in a few words",
+    contents: contents,
+    config: {
+      systemInstruction: `
+         You are a creative assistant helping to generate engaging captions. 
+         Keep the tone casual, fun, and suitable for social media. 
+         Include relevant emojis and a few hashtags that match the content of the image.
+         The caption should be short and catchy, no longer than 2-3 sentences.
+`,
+    },
   });
-  console.log(response.text);
+
+  return response.text;
 }
 
-main();
+module.exports = { createImagetoCaption };
